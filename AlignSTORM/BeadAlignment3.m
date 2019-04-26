@@ -6,7 +6,7 @@ function [c1_unique, c2_unique, ix, iy, tform_0inv] = BeadAlignment3(c, i, initx
 
 %I made significant changes to this code on 8/18/2017. Now, it is more
 %adaptable in that it can handle beads showing up in one channel but not
-%the other. 
+%the other. It's used for sub-pixel bead alignment.
 
 %This function takes a single bead image (image i in struct c) and uses the
 %initial x and y shifts calculated by BinaryBead image to get a starting
