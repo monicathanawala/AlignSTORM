@@ -8,11 +8,10 @@
 % -output the tforms (affine and poly) for each bit into tforms cell array
 
 for line=1:size(filePath,1);
-    numbits = size(d,2); 
     cd /Users/monica/Dropbox/MATLAB %mac
     c{1} = ReadMasterMoleculeList(filePath{line, 1}); %reference bead image
 
-    for i=1:numbits
+    for i=1:numbits %numbits is set in BatchAlignment
         c{i} = ReadMasterMoleculeList(filePath{line, i}); %all other bead images
     end
 
