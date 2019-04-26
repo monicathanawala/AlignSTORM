@@ -7,8 +7,9 @@ function [filePath, filePath_STORM, d] = Batch_Alignment(drive, expt, varargin);
 
 cd 'C:\Users\Monica\Dropbox\MATLAB' %use this for windows
 %cd '/Users/Monica/Dropbox/MATLAB' %use this line instead for mac
+numbits = nargin-2;
 
-for i=1:nargin-2;
+for i=1:numbits;
     mypath = fullfile(drive, expt, varargin{i}, '/');
     dir(fullfile(mypath, 'bead488*.bin')) %modify to identify your fiducial bead images
     beadfileList = dir(fullfile(mypath, 'bead488*.bin'))
