@@ -8,7 +8,7 @@
 % -output the tforms (affine and poly) for each bit into tforms cell array
 
 for line=1:size(filePath,1);
-    numbits = 5; 
+    numbits = size(d,2); 
     cd /Users/monica/Dropbox/MATLAB %mac
     c{1} = ReadMasterMoleculeList(filePath{line, 1}); %reference bead image
 
@@ -37,17 +37,10 @@ for line=1:size(filePath,1);
         initxshift=-1*corr_offset(1);
         inityshift=-1*corr_offset(2);
   
-        [c1_unique, c2_unique,ix,iy, tform_0inv, tform2] = BeadAlignment3(c, n, initxshift, inityshift);
+        [c1_unique, c2_unique,ix,iy, tform_0inv] = BeadAlignment3(c, n, initxshift, inityshift);
           tforms_affine{line, n}=tform_0inv;
-        
-          %commented out poly transform 1/7/2019
-          tforms_poly = 1;
-          %tforms_poly{line, n}=tform2;
-        %[u2x, u2y] = tforminv(tforms_poly{line, n},double(c{n}.x), double(c{n}.y));
-           
-    end
-    
-    
+          tforms_poly = 1;    
+    end   
 end
 
 
