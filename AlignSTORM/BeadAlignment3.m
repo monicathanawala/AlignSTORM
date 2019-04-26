@@ -1,4 +1,4 @@
-function [c1_unique, c2_unique, ix, iy, tform_0inv, tform2] = BeadAlignment3(c, i, initxshift, inityshift);
+function [c1_unique, c2_unique, ix, iy, tform_0inv] = BeadAlignment3(c, i, initxshift, inityshift);
 %ix, iy, tx, ty, tform, tform2, tform3, 
 %--------------------------------------------------------------------------
 % 06/05/2016 Monica Thanawala
@@ -24,9 +24,7 @@ function [c1_unique, c2_unique, ix, iy, tform_0inv, tform2] = BeadAlignment3(c, 
 
 tolxy = 1; % tolerance (disparity) in xy between the two channels, in pixels
 samebead = 0.3; % pixel distance between two localizations for them to likely be the same bead
-
-% edited below two lines on 2/12/2019 to only keep first frame of bead
-% movie. 
+ 
 c1_good = find(c{1}.x>0); 
 c2_good = find(c{i}.x>0); 
 
@@ -42,11 +40,11 @@ for n = 1:N1;
     close_c1 = find(abs(c{1}.x(n)-c{1}.x)<samebead); %& abs(c1.y(n)-c1.y)<samebead);
     if length(close_c1)>1 & c1log(n)==1;
         avgxpos = mean(c{1}.x(close_c1)); %find the average x position of this bead
-        avgypos = mean(c{1}.y(close_c1)); %find the average x position of this bead
-        avgzpos = mean(c{1}.x(close_c1)); %find the average x position of this bead #new 2/6
+        avgypos = mean(c{1}.y(close_c1)); %average y position
+        avgzpos = mean(c{1}.z(close_c1)); %average z position
         c1.x(n) = avgxpos; %set the localization at position n to the avg x pos
         c1.y(n) = avgypos; %set the localization at position n to the avg y pos
-        c1.z(n) = avgzpos; %set the localization at position n to the avg y pos
+        c1.z(n) = avgzpos; %set the localization at position n to the avg z pos
         for n2=2:length(close_c1);
             c1log(close_c1(n2),1)=0; %fill in 0 to logical for all other locs for later deletion
         end
@@ -58,11 +56,11 @@ end
     close_c2 = find(abs(c{i}.x(n)-c{i}.x)<samebead); %& abs(c2.y(n)-c2.y)<samebead);
     if length(close_c2)>1;
         avgxpos = mean(c{i}.x(close_c2)); %find the average x position of this bead
-        avgypos = mean(c{i}.y(close_c2)); %find the average x position of this bead
-        avgzpos = mean(c{i}.z(close_c2)); %find the average x position of this bead #new 2/6
+        avgypos = mean(c{i}.y(close_c2)); %find the average y position 
+        avgzpos = mean(c{i}.z(close_c2)); %find the average z position 
         c{i}.x(n) = avgxpos; %set the localization at position n to the avg x pos
         c{i}.y(n) = avgypos; %set the localization at position n to the avg y pos
-        c{i}.z(n) = avgzpos; %set the localization at position n to the avg y pos
+        c{i}.z(n) = avgzpos; %set the localization at position n to the avg z pos
         for n2=2:length(close_c2);
             c2log(close_c2(n2),1)=0; %fill in 0 to logical for all other locs for later deletion
         end
@@ -74,8 +72,6 @@ c1_unique = subsetstruct(c{1}, c1log);
 c2_unique = subsetstruct(c{i}, c2log);
 c1_good(~c1log,:) = []; 
 c2_good(~c2log,:) = [];
-
-
 
 %show whether initxshift and inityshift got good initial matching
 figure();
@@ -103,27 +99,6 @@ end
 % b corresponds to base, or channel1
 % i corresponds to input, or channel2
 
-%figure()
-%scatter3(c1_unique.xc, c1_unique.yc, c1_unique.zc, 'r.'); hold on
-%scatter3(c2_unique.xc, c2_unique.yc, c2_unique.zc, 'b.'); hold on
-%scatter3((c2_unique.xc-initxshift), (c2_unique.yc-inityshift), c2_unique.zc, 'k.');
-%xlabel('x (pixel)'); ylabel('y (pixel)');
-%daspect([1 1 1]);
-
-%figure()
-%scatter(c1_unique.xc, c1_unique.yc, 'r.'); hold on
-%scatter(c2_unique.xc, c2_unique.yc, 'b.'); 
-%xlabel('x (pixel)'); ylabel('y (pixel)');
-%daspect([1 1 1]);
-
-
-%figure()
-%plot(ix,iy,'b.',bx-initxshift,by-inityshift,'r.');
-%plot(ix,iy,'b.',bx,by,'r.');
-%legend('c2 unique','c1 unique');
-%xlabel('x (pixel)'); ylabel('y (pixel)');
-%daspect([1 1 1]);
-
 ix = double(ix);
 iy = double(iy);
 iz = double(iz);
@@ -131,11 +106,9 @@ bx = double(bx);
 by = double(by);
 bz = double(bz);
 
-
 %Warping in 2D
 input = [ ix' iy']; % input (c2)
 base = [ bx' by']; % base (c1)
-
 
 poly_order = 2;
 method = 'nonreflective similarity';
@@ -155,33 +128,5 @@ scatter(ix, iy, 'ko'); hold on
 scatter(bx, by, 'r.'); hold on
 legend('nrs transformed c2','original c2', 'original c1');
 daspect([1 1 1]);
-
-
-% polynomial warp %removed block 1/7/2019
-%tform = cp2tform(input_nrs,base,'polynomial',4);
-%tform2 = cp2tform(base,input_nrs,'polynomial',4);
-tform2=1;
-%[tx, ty] = tforminv(tform,bx,by);
-%[ux, uy] = tforminv(tform2,x0t,y0t);  
-
-%tform3 = fitgeotrans(input_nrs, base, 'polynomial', 4);
-
-%figure() % check tform by doing inverse to map c1 to match c2
-%plot(x0t,y0t,'b.',tx,ty,'r.');
-%legend('c2 unique','c1 unique');
-%xlabel('x (pixel)'); ylabel('y (pixel)');
-%daspect([1 1 1]);
-
-%plot(x0t,y0t,'b.',tx,ty,'r.');
-%legend('c2 unique','c1 unique');
-%xlabel('x (pixel)'); ylabel('y (pixel)');
-%daspect([1 1 1]);
-
-%figure() 
-%check tform2 by doing inverse to map c2 to match c1
-%plot(ux,uy,'b.',bx,by,'r.');
-%legend('c2 unique','c1 unique');
-%xlabel('x (pixel)'); ylabel('y (pixel)');
-%daspect([1 1 1]);
 
 end 
