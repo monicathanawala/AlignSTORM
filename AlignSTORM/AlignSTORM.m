@@ -1,6 +1,6 @@
 function [d] = AlignSTORM(filePath_STORM, tforms_affine, tforms_poly, d, line);
 
-numbits = size(d,2);
+numbits = size(filePath_STORM,2);
 
 d{line, 1} = ReadMasterMoleculeList(filePath_STORM{line, 1}); %first hyb 
 
